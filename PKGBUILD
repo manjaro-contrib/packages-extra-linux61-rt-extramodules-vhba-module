@@ -1,46 +1,41 @@
 # Maintainer: Bernhard Landauer <bernhard@manjaro.org>
-# Archlinux credits:
-# Ray Rashif <schiv@archlinux.org>
-# Mateusz Herych <heniekk@gmail.com>
-# Charles Lindsay <charles@chaoslizard.org>
+# Contributor: Jan Alexander Steffens (heftig) <heftig@archlinux.org>
+# Contributor: Ray Rashif <schiv@archlinux.org>
+# Contributor: Mateusz Herych <heniekk@gmail.com>
+# Contributor: Charles Lindsay <charles@chaoslizard.org>
 
 _linuxprefix=linux61-rt
 _extramodules=extramodules-6.1-rt-MANJARO
-_pkgname=vhba-module
-pkgname=$_linuxprefix-$_pkgname
-pkgver=20211218
-pkgrel=20
+
+_module=vhba-module
+pkgname="${_linuxprefix}-${_module}"
+pkgver=20240202
+pkgrel=1
 pkgdesc="Kernel module that emulates SCSI devices"
 arch=('x86_64')
-url="http://cdemu.sourceforge.net/"
-license=('GPL')
-depends=("$_linuxprefix")
-makedepends=("$_linuxprefix-headers")
-provides=("$_pkgname=$pkgver" "VHBA-MODULE")
-replaces=("linux515-rt-$_pkgname" "linux60-rt-$_pkgname")
-groups=("$_linuxprefix-extramodules")
-install=$_pkgname.install
-source=("http://downloads.sourceforge.net/cdemu/$_pkgname-$pkgver.tar.xz"
-        '60-vhba.rules')
-sha256sums=('72c5a8c1c452805e4cef8cafefcecc2d25ce197ae4c67383082802e5adcd77b6'
-            '3052cb1cadbdf4bfb0b588bb8ed80691940d8dd63dc5502943d597eaf9f40c3b')
+url="https://cdemu.sourceforge.io/"
+license=('GPL-2.0-or-later')
+depends=("${_linuxprefix}")
+makedepends=("${_linuxprefix}-headers")
+provides=("${_module}=$pkgver" "VHBA-MODULE")
+replaces=("linux515-rt-${_module}" "linux60-rt-${_module}")
+groups=("${_linuxprefix}-extramodules")
+source=("http://downloads.sourceforge.net/cdemu/${_module}-$pkgver.tar.xz")
+sha256sums=('bf5850d4b8f50221ca87d7343a929eda87b191f6f5ae8c614174543b5badde83')
 
 build() {
-  _kernver="$(cat /usr/lib/modules/$_extramodules/version)"
+  _kernver="$(cat /usr/lib/modules/${_extramodules}/version)"
 
-  cd "$_pkgname-$pkgver"
-  make -j1 KDIR=/usr/lib/modules/${_kernver}/build
+  cd "${_module}-$pkgver"
+  make KERNELRELEASE="${_kernver}"
 }
 
 package() {
-  cd "$_pkgname-$pkgver"
-  install -D vhba.ko "$pkgdir/usr/lib/modules/$_extramodules/vhba.ko"
+  cd "${_module}-$pkgver"
+  _kernver="$(cat /usr/lib/modules/${_extramodules}/version)"
 
-  sed -i "s/EXTRAMODULES=.*/EXTRAMODULES=$_extramodules/" \
-    "$startdir/vhba-module.install"
+  install -Dm644 *.ko -t "$pkgdir/usr/lib/modules/${_extramodules}/"
 
-  find "$pkgdir" -name '*.ko' -exec gzip -9 {} \;
-
-  install -Dm644 "../60-vhba.rules" \
-    "$pkgdir/usr/lib/udev/rules.d/60-$_linuxprefix-vhba.rules"
+  find "$pkgdir" -name '*.ko' -exec strip --strip-debug {} +
+  find "$pkgdir" -name '*.ko' -exec xz {} +
 }
