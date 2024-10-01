@@ -9,8 +9,8 @@ _extramodules=extramodules-6.1-rt-MANJARO
 
 _module=vhba-module
 pkgname="${_linuxprefix}-${_module}"
-pkgver=20240202
-pkgrel=13
+pkgver=20240917
+pkgrel=1
 pkgdesc="Kernel module that emulates SCSI devices"
 arch=('x86_64')
 url="https://cdemu.sourceforge.io/"
@@ -21,7 +21,7 @@ provides=("${_module}=$pkgver" "VHBA-MODULE")
 replaces=("linux515-rt-${_module}" "linux60-rt-${_module}")
 groups=("${_linuxprefix}-extramodules")
 source=("http://downloads.sourceforge.net/cdemu/${_module}-$pkgver.tar.xz")
-sha256sums=('bf5850d4b8f50221ca87d7343a929eda87b191f6f5ae8c614174543b5badde83')
+sha256sums=('ce34cbae2c36cef8d7d09c5f6bd42d6871b9b530bb70b4ca100f964823fe0e98')
 
 build() {
   _kernver="$(cat /usr/lib/modules/${_extramodules}/version)"
