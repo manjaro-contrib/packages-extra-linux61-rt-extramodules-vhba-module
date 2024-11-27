@@ -5,7 +5,6 @@
 # Contributor: Charles Lindsay <charles@chaoslizard.org>
 
 _linuxprefix=linux61-rt
-_extramodules=extramodules-6.1-rt-MANJARO
 
 _module=vhba-module
 pkgname="${_linuxprefix}-${_module}"
@@ -18,23 +17,22 @@ license=('GPL-2.0-or-later')
 depends=("${_linuxprefix}")
 makedepends=("${_linuxprefix}-headers")
 provides=("${_module}=$pkgver" "VHBA-MODULE")
-replaces=("linux515-rt-${_module}" "linux60-rt-${_module}")
 groups=("${_linuxprefix}-extramodules")
 source=("http://downloads.sourceforge.net/cdemu/${_module}-$pkgver.tar.xz")
 sha256sums=('ce34cbae2c36cef8d7d09c5f6bd42d6871b9b530bb70b4ca100f964823fe0e98')
 
 build() {
-  _kernver="$(cat /usr/lib/modules/${_extramodules}/version)"
+  _kernver="$(cat /usr/src/${_linuxprefix}/version)"
 
   cd "${_module}-$pkgver"
   make KERNELRELEASE="${_kernver}"
 }
 
 package() {
-  cd "${_module}-$pkgver"
-  _kernver="$(cat /usr/lib/modules/${_extramodules}/version)"
+  _kernver="$(cat /usr/src/${_linuxprefix}/version)"
 
-  install -Dm644 *.ko -t "$pkgdir/usr/lib/modules/${_extramodules}/"
+  cd "${_module}-$pkgver"
+  install -Dm644 *.ko -t "$pkgdir/usr/lib/modules/${_kernver}/extramodules/"
 
   find "$pkgdir" -name '*.ko' -exec strip --strip-debug {} +
   find "$pkgdir" -name '*.ko' -exec xz {} +
